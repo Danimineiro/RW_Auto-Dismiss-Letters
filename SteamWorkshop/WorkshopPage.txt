@@ -1,0 +1,9 @@
+﻿[img=https://raw.githubusercontent.com/Danimineiro/RW_dropOnFloorAndForbid/master/Workshop/feature.png][/img]
+This mod, when enabled, automatically dismisses all letters after a set period of time.
+By default, this time is 30 seconds, but the user can choose any time they want through the included settings menu.
+
+[img=https://raw.githubusercontent.com/Danimineiro/RW_dropOnFloorAndForbid/master/Workshop/links.png][/img]
+[url=https://github.com/Danimineiro/RW_Auto-Dismiss-Letters]GitHub[/url]
+[url=https://ko-fi.com/Dani]Ko-Fi[/url]
+
+[url=https://discord.gg/7befJWr9xS][img]https://i.imgur.com/cfoFEMA.png[/img][/url]
