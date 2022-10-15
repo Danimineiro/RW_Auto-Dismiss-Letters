@@ -7,16 +7,21 @@
 		<GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 		<RootNamespace>DismissLetters</RootNamespace>
-		<OutputPath>1.3/Assemblies</OutputPath>
+		<OutputPath>1.4/Assemblies</OutputPath>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Krafs.Rimworld.Ref" Version="1.3.3389" />
-		<PackageReference Include="Lib.Harmony" Version="2.2.1" />
+		<PackageReference Include="Krafs.Rimworld.Ref" Version="1.4.3517-beta" />
+		<PackageReference Include="Lib.Harmony" Version="2.2.2" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<Folder Include="1.3\Assemblies\" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Include="1.4\Assemblies\SamSamConm.dll" />
+	  <None Include="1.4\Assemblies\SamSamConm.pdb" />
 	</ItemGroup>
 
 </Project>

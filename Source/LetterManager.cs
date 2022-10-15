@@ -5,6 +5,7 @@ using RimWorld.Planet;
 using Verse;
 using Verse.Sound;
 using DismissLetters.Settings;
+using HarmonyLib;
 
 namespace DismissLetters
 {
@@ -32,21 +33,29 @@ namespace DismissLetters
 
             if (curTime < nextCheck) return;
 
-            letters.RemoveAll(pair =>
+            List<Letter> RemoveList = new List<Letter>();
+
+            foreach (KeyValuePair<Letter, long> pair in letters)
             {
                 bool flag = curTime > pair.Value && pair.Key.CanDismissWithRightClick;
 
                 if (flag)
                 {
-                    Find.LetterStack.RemoveLetter(pair.Key);
+                    RemoveList.Add(pair.Key);
+
                     if (AutoDismissMod.Settings.makeSoundWhenLetterRemoved)
                     {
                         SoundDefOf.Click.PlayOneShotOnCamera();
                     }
                 }
 
-                return flag;
-            });
+            }
+            
+            foreach (Letter letter in RemoveList)
+            {
+                letters.Remove(letter);
+                Find.LetterStack.RemoveLetter(letter);
+            }
 
             nextCheck = NextCheckTime;
             base.WorldComponentTick();
