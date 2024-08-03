@@ -6,6 +6,7 @@ using Verse;
 using Verse.Sound;
 using DismissLetters.Settings;
 using HarmonyLib;
+using System.Linq;
 
 namespace DismissLetters
 {
@@ -27,17 +28,15 @@ namespace DismissLetters
 
         public override void WorldComponentUpdate()
         {
-            if (!AutoDismissMod.Settings.enabled) return;
-
+            if (!AutoDismissMod.Settings.enabled || Find.TickManager?.CurTimeSpeed != TimeSpeed.Paused) return;
             long curTime = DateTime.UtcNow.ToFileTimeUtc();
-
             if (curTime < nextCheck) return;
 
             List<Letter> RemoveList = new List<Letter>();
 
             foreach (KeyValuePair<Letter, long> pair in letters)
             {
-                bool flag = curTime > pair.Value && pair.Key.CanDismissWithRightClick;
+                bool flag = (AutoDismissMod.Settings.realtime ? curTime : Find.TickManager.TicksGame) > pair.Value && pair.Key.CanDismissWithRightClick;
 
                 if (flag)
                 {
@@ -50,7 +49,7 @@ namespace DismissLetters
                 }
 
             }
-            
+        
             foreach (Letter letter in RemoveList)
             {
                 letters.Remove(letter);
@@ -61,7 +60,26 @@ namespace DismissLetters
             base.WorldComponentTick();
         }
 
-        public static void AddLetter(Letter let) => Instance.letters.Add(let, DateTime.UtcNow.AddSeconds(AutoDismissMod.Settings.dismissLetterIfOlderThanSeconds).ToFileTimeUtc());
+        public void RefreshAllLetters()
+        {
+            List<Letter> list = letters.Keys.ToList();
+            letters.Clear();
+            foreach (Letter letter in list)
+            {
+                AddLetter(letter);
+            }
+        }
+
+        public static void AddLetter(Letter let)
+        {
+            if (AutoDismissMod.Settings.realtime)
+            {
+                Instance.letters.Add(let, DateTime.UtcNow.AddSeconds(AutoDismissMod.Settings.dismissLetterIfOlderThanSeconds).ToFileTimeUtc());
+                return;
+            }
+
+            Instance.letters.Add(let, Find.TickManager.TicksGame + AutoDismissMod.Settings.dismissLetterIfOlderThanSeconds);
+        }
 
         public static void RemoveLetter(Letter let) => Instance.letters.Remove(let);
 

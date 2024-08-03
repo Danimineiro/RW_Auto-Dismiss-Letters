@@ -1,9 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <LanguageData>
 	<DNADL_Enabled>Mod is enabled:</DNADL_Enabled>
+	<DNADL_Realtime>Use Realtime:</DNADL_Realtime>
+	<DNADL_RealtimeTT>With realtime enabled: Letters will be dismissed after a set amount of realtime, with it disabled: Letters will be dismissed after a set amount of ingame time</DNADL_RealtimeTT>
 	<DNADL_Sound>Play the default sound when a letter is removed:</DNADL_Sound>
 	<DNADL_CheckEverySeconds>How often the mod should check for dismissal (in seconds):</DNADL_CheckEverySeconds>
-	<DNADL_DismissLetterAge>How old should a letter be (in seconds) before it is deleted:</DNADL_DismissLetterAge>
+	<DNADL_DismissLetterAgeReal>How old should a letter be (in seconds) before it is deleted:</DNADL_DismissLetterAgeReal>
+	<DNADL_DismissLetterAgeTick>How old should a letter be (in ticks) before it is deleted:</DNADL_DismissLetterAgeTick>
 	<DNADL_Reset>Reset to defaults</DNADL_Reset>
 	<DNADL_YouSure>Are you sure?</DNADL_YouSure>
 </LanguageData>
