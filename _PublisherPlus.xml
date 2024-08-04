@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Configuration>
+  <Excluded>
+    <exclude>.git</exclude>
+    <exclude>.vs</exclude>
+    <exclude>obj</exclude>
+    <exclude>SamSamConm.csproj</exclude>
+    <exclude>SamSamConm.sln</exclude>
+    <exclude>Source</exclude>
+    <exclude>SteamWorkshop</exclude>
+  </Excluded>
+</Configuration>

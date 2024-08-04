@@ -13,13 +13,14 @@ namespace DismissLetters
     internal class LetterManager : WorldComponent
     {
         private static LetterManager instance;
-        private Dictionary<Letter, long> letters = new Dictionary<Letter, long>();
+        private Dictionary<Letter, long> letterAge = new Dictionary<Letter, long>();
+
         private List<Letter> letterList = new List<Letter>();
         private List<long> letterTime = new List<long>();
-        private long nextCheck = NextCheckTime;
+
+        private DateTime nextCheck = DateTime.Now;
 
         public static LetterManager Instance => instance;
-        private static long NextCheckTime => DateTime.UtcNow.AddSeconds(AutoDismissMod.Settings.checkEverySecondsAmount).ToFileTimeUtc();
 
         public LetterManager(World world) : base(world) 
         {
@@ -28,19 +29,19 @@ namespace DismissLetters
 
         public override void WorldComponentUpdate()
         {
-            if (!AutoDismissMod.Settings.enabled || Find.TickManager?.CurTimeSpeed != TimeSpeed.Paused) return;
-            long curTime = DateTime.UtcNow.ToFileTimeUtc();
-            if (curTime < nextCheck) return;
+            if (!AutoDismissMod.Settings.enabled || !AutoDismissMod.Settings.realtime) return;
+            if (DateTime.Compare(nextCheck, DateTime.Now) > 0) return;
+
+            nextCheck += new TimeSpan(AutoDismissMod.Settings.checkEverySecondsAmount * TimeSpan.TicksPerSecond); 
 
             List<Letter> RemoveList = new List<Letter>();
-
-            foreach (KeyValuePair<Letter, long> pair in letters)
+            foreach ((Letter letter, long age) in letterAge)
             {
-                bool flag = (AutoDismissMod.Settings.realtime ? curTime : Find.TickManager.TicksGame) > pair.Value && pair.Key.CanDismissWithRightClick;
+                if (DateTime.Compare(new DateTime(age), DateTime.Now) > 0) return;
 
-                if (flag)
+                if (letter.CanDismissWithRightClick)
                 {
-                    RemoveList.Add(pair.Key);
+                    RemoveList.Add(letter);
 
                     if (AutoDismissMod.Settings.makeSoundWhenLetterRemoved)
                     {
@@ -52,18 +53,46 @@ namespace DismissLetters
         
             foreach (Letter letter in RemoveList)
             {
-                letters.Remove(letter);
+                letterAge.Remove(letter);
                 Find.LetterStack.RemoveLetter(letter);
             }
+        }
 
-            nextCheck = NextCheckTime;
-            base.WorldComponentTick();
+        public override void WorldComponentTick()
+        {
+            if (!AutoDismissMod.Settings.enabled || AutoDismissMod.Settings.realtime) return;
+            if (DateTime.Compare(nextCheck, DateTime.Now) > 0) return;
+
+            nextCheck += new TimeSpan(AutoDismissMod.Settings.checkEverySecondsAmount * TimeSpan.TicksPerSecond);
+
+            List<Letter> RemoveList = new List<Letter>();
+            foreach ((Letter letter, long age) in letterAge)
+            {
+                if (Find.TickManager.TicksGame - age < 0) return;
+
+                if (letter.CanDismissWithRightClick)
+                {
+                    RemoveList.Add(letter);
+
+                    if (AutoDismissMod.Settings.makeSoundWhenLetterRemoved)
+                    {
+                        SoundDefOf.Click.PlayOneShotOnCamera();
+                    }
+                }
+
+            }
+
+            foreach (Letter letter in RemoveList)
+            {
+                letterAge.Remove(letter);
+                Find.LetterStack.RemoveLetter(letter);
+            }
         }
 
         public void RefreshAllLetters()
         {
-            List<Letter> list = letters.Keys.ToList();
-            letters.Clear();
+            Letter[] list = letterAge.Keys.ToArray();
+            letterAge.Clear();
             foreach (Letter letter in list)
             {
                 AddLetter(letter);
@@ -74,18 +103,18 @@ namespace DismissLetters
         {
             if (AutoDismissMod.Settings.realtime)
             {
-                Instance.letters.Add(let, DateTime.UtcNow.AddSeconds(AutoDismissMod.Settings.dismissLetterIfOlderThanSeconds).ToFileTimeUtc());
+                Instance.letterAge.Add(let, (DateTime.Now + new TimeSpan(AutoDismissMod.Settings.dismissLetterIfOlderThanSeconds * TimeSpan.TicksPerSecond)).Ticks);
                 return;
             }
 
-            Instance.letters.Add(let, Find.TickManager.TicksGame + AutoDismissMod.Settings.dismissLetterIfOlderThanSeconds);
+            Instance.letterAge.Add(let, Find.TickManager.TicksGame + AutoDismissMod.Settings.dismissLetterIfOlderThanSeconds);
         }
 
-        public static void RemoveLetter(Letter let) => Instance.letters.Remove(let);
+        public static void RemoveLetter(Letter let) => Instance.letterAge.Remove(let);
 
         public override void ExposeData()
         {
-            Scribe_Collections.Look(ref letters, nameof(letters), LookMode.Reference, LookMode.Value, ref letterList, ref letterTime);
+            Scribe_Collections.Look(ref letterAge, nameof(letterAge), LookMode.Reference, LookMode.Value, ref letterList, ref letterTime);
 
             base.ExposeData();
         }
